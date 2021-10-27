@@ -503,6 +503,25 @@ function progress_bar(trials, progress, cost, time)
 	print(" ", progress_bar, "  Cost = ", cost, "  Time = ", time, " sec      \r")
 end
 
+"""
+Read an input tour file as an initial seed for every trial
+"""
+function try_read_input_tour(param::Dict{Symbol,Any}, dist::Array{Int64, 2},)
+
+    if(param[:init_tour_file] == "None")
+        return nothing
+    end
+
+    s = open(param[:init_tour_file], "r")
+    tour_order_str = split(read(s, String), ",")
+    tour_order = [parse(Int64, vertex) for vertex in tour_order_str]
+    seed_tour = Tour(tour_order, typemax(Int64))
+    seed_tour.cost = tour_cost(seed_tour.tour, dist)
+
+    println("Initial Tour Loaded")
+
+    return seed_tour
+end
 
 """print tour summary at end of execution"""
 function print_summary(lowest::Tour, timer::Float64, member::Array{Int64,1},

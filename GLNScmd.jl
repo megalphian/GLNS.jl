@@ -50,7 +50,7 @@ function parse_cmd(ARGS)
 	end
 	int_flags = ["-max_time", "-trials", "-restarts", "-verbose", "-budget", "-num_iterations"]
 	float_flags = ["-epsilon", "-reopt"]
-	string_flags = ["-mode", "-output", "-noise", "-devel"]
+	string_flags = ["-mode", "-output", "-noise", "-devel", "-init_tour_file"]
 	filename = ""
 	optional_args = Dict{Symbol, Any}()
 	for arg in ARGS

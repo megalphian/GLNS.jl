@@ -43,9 +43,17 @@ function solver(problem_instance; args...)
 	setdist = set_vertex_dist(dist, num_sets, membership)
 	powers = initialize_powers(param)
 
+	init_tour_seed = try_read_input_tour(param, dist)
+
 	while count[:cold_trial] <= param[:cold_trials]
-		# build tour from scratch on a cold restart
-		best = initial_tour!(lowest, dist, sets, setdist, count[:cold_trial], param)
+		
+		if count[:cold_trial] == 1 && init_tour_seed !== nothing
+			best = init_tour_seed
+		else
+			# build tour from scratch on a cold restart
+			best = initial_tour!(lowest, dist, sets, setdist, count[:cold_trial], param)
+		end
+
 		# print_cold_trial(count, param, best)
 		phase = :early
 
@@ -70,10 +78,10 @@ function solver(problem_instance; args...)
 			while count[:latest_improvement] <= (count[:first_improvement] ?
 				  param[:latest_improvement] : param[:first_improvement])
 
-				if iter_count > param[:num_iterations]/2 && phase == :early
+				if phase == :early && iter_count > param[:num_iterations]/2
 					phase = :mid  # move to mid phase after half iterations
 				end
-				trial = remove_insert(current, best, dist, membership, setdist, sets, powers, param, phase)
+				trial = remove_insert(current, dist, membership, setdist, sets, powers, param, phase)
 
 		        # decide whether or not to accept trial
 				if accepttrial_noparam(trial.cost, current.cost, param[:prob_accept]) ||
