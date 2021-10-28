@@ -49,6 +49,7 @@ function solver(problem_instance; args...)
 		
 		if count[:cold_trial] == 1 && init_tour_seed !== nothing
 			best = init_tour_seed
+			lowest = init_tour_seed
 		else
 			# build tour from scratch on a cold restart
 			best = initial_tour!(lowest, dist, sets, setdist, count[:cold_trial], param)
