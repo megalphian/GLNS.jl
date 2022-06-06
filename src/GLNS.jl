@@ -44,15 +44,26 @@ function solver(problem_instance; args...)
 	powers = initialize_powers(param)
 
 	init_tour_seed = try_read_input_tour(param, dist)
+	best_sol_time = 0
 
 	while count[:cold_trial] <= param[:cold_trials]
 		
-		if count[:cold_trial] == 1 && init_tour_seed !== nothing
+		if init_tour_seed !== nothing
+			if count[:cold_trial] == 1
+				lowest = init_tour_seed
+			end
 			best = init_tour_seed
-			lowest = init_tour_seed
+			if (lowest.cost > best.cost)
+				lowest = best
+				best_sol_time = round((time_ns() - start_time)/1.0e9, digits=2)
+			end
 		else
 			# build tour from scratch on a cold restart
-			best = initial_tour!(lowest, dist, sets, setdist, count[:cold_trial], param)
+			best = initial_tour!(dist, sets, setdist, count[:cold_trial], param)
+			if (lowest.cost > best.cost)
+				lowest = best
+				best_sol_time = round((time_ns() - start_time)/1.0e9, digits=2)
+			end
 		end
 
 		# print_cold_trial(count, param, best)
@@ -107,9 +118,12 @@ function solver(problem_instance; args...)
 					param[:timeout] = (time() - init_time > param[:max_time])
 					param[:budget_met] = (best.cost <= param[:budget])
 					timer = (time_ns() - start_time)/1.0e9
-					lowest.cost > best.cost && (lowest = best)
+					if (lowest.cost > best.cost)
+						lowest = best
+						best_sol_time = round((time_ns() - start_time)/1.0e9, digits=2)
+					end
 					print_best(count, param, best, lowest, init_time)
-					print_summary(lowest, timer, membership, param)
+					print_summary(lowest, timer, membership, param, best_sol_time)
 					return
 				end
 
@@ -124,7 +138,10 @@ function solver(problem_instance; args...)
 			count[:latest_improvement] = 1
 			count[:first_improvement] = false
 		end
-		lowest.cost > best.cost && (lowest = best)
+		if (lowest.cost > best.cost)
+			lowest = best
+			best_sol_time = round((time_ns() - start_time)/1.0e9, digits=2)
+		end
 		count[:warm_trial] = 0
 		count[:cold_trial] += 1
 
@@ -132,6 +149,6 @@ function solver(problem_instance; args...)
 
 	end
 	timer = (time_ns() - start_time)/1.0e9
-	print_summary(lowest, timer, membership, param)
+	print_summary(lowest, timer, membership, param, best_sol_time)
 end
 end

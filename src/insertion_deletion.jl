@@ -232,7 +232,7 @@ end
 ############ Initial Tour Construction ##########################
 
 """build tour from scratch on a cold restart"""
-function initial_tour!(lowest::Tour, dist::Array{Int64, 2}, sets::Array{Any, 1},
+function initial_tour!(dist::Array{Int64, 2}, sets::Array{Any, 1},
 						setdist::Distsv, trial_num::Int64, param::Dict{Symbol,Any})
 	sets_to_insert = collect(1:param[:num_sets])
 	best = Tour(Int64[], typemax(Int64))
@@ -245,7 +245,6 @@ function initial_tour!(lowest::Tour, dist::Array{Int64, 2}, sets::Array{Any, 1},
 		random_insertion!(best.tour, sets_to_insert, dist, sets, setdist)
 	end
 	best.cost = tour_cost(best.tour, dist)
-	lowest.cost > best.cost && (lowest = best)
 	return best
 end
 
