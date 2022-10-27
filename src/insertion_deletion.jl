@@ -16,7 +16,7 @@
 Select a removal and an insertion method using powers, and then perform
 removal followed by insertion on tour.  Operation done in place.
 """
-function remove_insert(current::Tour, best::Tour, dist::Array{Int64,2}, member::Array{Int64,1},
+function remove_insert(current::Tour, dist::Array{Int64,2}, member::Array{Int64,1},
 						setdist::Distsv, sets::Array{Any,1},
 						powers, param::Dict{Symbol,Any}, phase::Symbol)
 	# make a new tour to perform the insertion and deletion on
@@ -232,7 +232,7 @@ end
 ############ Initial Tour Construction ##########################
 
 """build tour from scratch on a cold restart"""
-function initial_tour!(lowest::Tour, dist::Array{Int64, 2}, sets::Array{Any, 1},
+function initial_tour!(dist::Array{Int64, 2}, sets::Array{Any, 1},
 						setdist::Distsv, trial_num::Int64, param::Dict{Symbol,Any})
 	sets_to_insert = collect(1:param[:num_sets])
 	best = Tour(Int64[], typemax(Int64))
@@ -245,10 +245,8 @@ function initial_tour!(lowest::Tour, dist::Array{Int64, 2}, sets::Array{Any, 1},
 		random_insertion!(best.tour, sets_to_insert, dist, sets, setdist)
 	end
 	best.cost = tour_cost(best.tour, dist)
-	lowest.cost > best.cost && (lowest = best)
 	return best
 end
-
 
 """
 Randomly shuffle the sets, and then insert the best vertex from each set back into

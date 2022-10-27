@@ -14,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-using GLNS
+include("./src/GLNS.jl")
+
+using .GLNS
 
 """
 Optional Flags -- values are given in square brackets []  
@@ -50,7 +52,7 @@ function parse_cmd(ARGS)
 	end
 	int_flags = ["-max_time", "-trials", "-restarts", "-verbose", "-budget", "-num_iterations"]
 	float_flags = ["-epsilon", "-reopt"]
-	string_flags = ["-mode", "-output", "-noise", "-devel"]
+	string_flags = ["-mode", "-output", "-noise", "-devel", "-init_tour_file", "-init_tour"]
 	filename = ""
 	optional_args = Dict{Symbol, Any}()
 	for arg in ARGS

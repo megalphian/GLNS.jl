@@ -503,10 +503,29 @@ function progress_bar(trials, progress, cost, time)
 	print(" ", progress_bar, "  Cost = ", cost, "  Time = ", time, " sec      \r")
 end
 
+"""
+Read an input tour file as an initial seed for every trial
+"""
+function try_read_input_tour(param::Dict{Symbol,Any}, dist::Array{Int64, 2},)
+
+    if(param[:init_tour_file] == "None")
+        return nothing
+    end
+
+    s = open(param[:init_tour_file], "r")
+    tour_order_str = split(read(s, String), ",")
+    tour_order = [parse(Int64, vertex) for vertex in tour_order_str]
+    seed_tour = Tour(tour_order, typemax(Int64))
+    seed_tour.cost = tour_cost(seed_tour.tour, dist)
+
+    println("Initial Tour Loaded")
+
+    return seed_tour
+end
 
 """print tour summary at end of execution"""
 function print_summary(lowest::Tour, timer::Float64, member::Array{Int64,1},
-						param::Dict{Symbol,Any})
+						param::Dict{Symbol,Any}, best_sol_time::Float64)
 	if param[:print_output] == 3 && !param[:timeout] && !param[:budget_met]
 		progress_bar(param[:cold_trials], 1.0, lowest.cost, round(timer, digits=1))
 	end
@@ -522,18 +541,20 @@ function print_summary(lowest::Tour, timer::Float64, member::Array{Int64,1},
 					lowest.tour : "printed to " * param[:output_file])
 			println("Output File       : ",  param[:output_file])
 			println("Tour Ordering     : ",  order_to_print)
+            println("Best Solution Time: ", best_sol_time)
 			println("-----------------------------------")
 		end
 		if param[:output_file] != "None"
 			s = open(param[:output_file], "w")
-			write(s, "Problem Instance : ", param[:problem_instance], "\n")
-			write(s, "Vertices         : ", string(param[:num_vertices]), "\n")
-			write(s, "Sets             : ", string(param[:num_sets]), "\n")
-			write(s, "Comment          : To avoid ~0.5sec startup time, use the Julia REPL\n")
-			write(s, "Host Computer    : ", gethostname(), "\n")
-			write(s, "Solver Time      : ", string(round(timer, digits=3)), " sec\n")
-			write(s, "Tour Cost        : ", string(lowest.cost), "\n")
-			write(s, "Tour             : ", string(lowest.tour))
+			write(s, "Problem Instance    : ", param[:problem_instance], "\n")
+			write(s, "Vertices            : ", string(param[:num_vertices]), "\n")
+			write(s, "Sets                : ", string(param[:num_sets]), "\n")
+			write(s, "Comment             : To avoid ~0.5sec startup time, use the Julia REPL\n")
+			write(s, "Host Computer       : ", gethostname(), "\n")
+			write(s, "Solver Time         : ", string(round(timer, digits=3)), " sec\n")
+			write(s, "Tour Cost           : ", string(lowest.cost), "\n")
+			write(s, "Tour                : ", string(lowest.tour), "\n")
+            write(s, "Best Solution Time  : ", string(best_sol_time))
 			close(s)
 		end
 	end
